@@ -45,6 +45,10 @@ export const useApp = defineStore('app', {
       toast: null,
       installPrompt: null,
       unread: (boot && boot.unread_messages) || 0,
+      needLogin: false,
+      // PWA: sudah dibuka dari layar utama? iPhone/iPad (tanpa tombol pasang otomatis)?
+      isStandalone: window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true,
+      isIOS: /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1),
       winWide: window.innerWidth >= 1100
     }
   },
@@ -100,11 +104,31 @@ export const useApp = defineStore('app', {
           this.setPref('property', '')
         }
       } catch (e) {
-        // offline → pakai bootstrap terakhir; izin ditolak → tampilkan pesan
-        if (!this.boot || (e.status && e.status !== 0 && e.status < 500)) this.bootError = e.message
+        // Sesi habis / belum login → layar login. Offline → bootstrap terakhir. Izin ditolak → pesan.
+        if (e.status === 401 || (e.status === 403 && /login/i.test(e.message))) {
+          this.needLogin = true
+          this.boot = null
+        } else if (!this.boot || (e.status && e.status !== 0 && e.status < 500)) this.bootError = e.message
       } finally {
         this.loaded = true
       }
+    },
+    async promptInstall() {
+      const p = this.installPrompt
+      if (!p) return false
+      p.prompt()
+      const { outcome } = await p.userChoice
+      this.installPrompt = null
+      return outcome === 'accepted'
+    },
+    async logout() {
+      try {
+        await call('frappe.handler.logout', {}, { post: true })
+      } catch {
+        /* tetap keluar */
+      }
+      localStorage.removeItem(LS_BOOT)
+      window.location.replace('/booking_ops')
     },
     // Badge menu Pesan: dipanggil berkala (App.vue) dan setelah membaca/membalas.
     async refreshUnread() {

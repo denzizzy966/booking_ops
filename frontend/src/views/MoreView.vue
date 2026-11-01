@@ -2,8 +2,8 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useApp } from '../stores/app'
-import { call } from '../lib/api'
 import AppBar from '../components/AppBar.vue'
+import InstallBanner from '../components/InstallBanner.vue'
 
 const app = useApp()
 const router = useRouter()
@@ -19,22 +19,8 @@ const desc = {
   bookings: 'Cari & kelola booking'
 }
 
-async function logout() {
-  try {
-    await call('frappe.handler.logout', {}, { post: true })
-  } catch {
-    /* tetap keluar */
-  }
-  localStorage.removeItem('bookingops.bootstrap')
-  window.location.href = '/login?redirect-to=/booking_ops'
-}
-async function install() {
-  const p = app.installPrompt
-  if (!p) return
-  p.prompt()
-  await p.userChoice
-  app.installPrompt = null
-}
+const logo = import.meta.env.BASE_URL + 'rmi-logo.png'
+const logout = () => app.logout()
 async function refresh() {
   await app.load()
   app.notify('Data master diperbarui', 'success')
@@ -74,13 +60,16 @@ async function refresh() {
 
       <div class="section-title">Aplikasi</div>
       <button class="list-item menu" @click="refresh"><span class="lead-icon graybg"><Icon name="sync" /></span><div class="grow"><b>Muat ulang data master</b><div class="tiny muted">Properti, kamar, hak akses menu</div></div></button>
-      <button v-if="app.installPrompt" class="list-item menu" @click="install"><span class="lead-icon graybg"><Icon name="plus" /></span><div class="grow"><b>Pasang di layar utama</b></div></button>
+      <InstallBanner force class="mb10" />
       <template v-if="app.user.is_manager">
         <a class="list-item menu" href="/app/booking-ops-settings" target="_blank"><span class="lead-icon graybg"><Icon name="settings" /></span><div class="grow"><b>Pengaturan Beds24 & role</b><div class="tiny muted">Booking Ops Settings (ERPNext)</div></div><Icon name="external" class="muted" /></a>
         <a class="list-item menu" href="/app/beds24-room" target="_blank"><span class="lead-icon graybg"><Icon name="bed" /></span><div class="grow"><b>Pemetaan kamar → item</b><div class="tiny muted">Beds24 Room</div></div><Icon name="external" class="muted" /></a>
       </template>
       <button class="list-item menu" @click="logout"><span class="lead-icon redbg"><Icon name="logout" /></span><div class="grow"><b>Keluar</b></div></button>
-      <p class="tiny muted center mt12">Booking Ops 0.1 · Beds24 API v2 → ERPNext Sales Order</p>
+      <div class="brand-foot">
+        <img :src="logo" alt="Real Magick Indonesia" />
+        <p class="tiny muted center">Booking Ops 0.1 · Beds24 API v2 → ERPNext Sales Order</p>
+      </div>
     </div>
   </div>
 </template>
@@ -90,4 +79,8 @@ async function refresh() {
 .menu { width: 100%; border: 0; text-align: left; color: var(--ink); cursor: pointer; }
 .brandbg { background: var(--brand); } .graybg { background: #64748b; } .redbg { background: var(--danger); }
 .center { text-align: center; }
+.mb10 { margin-bottom: 10px; }
+.brand-foot { margin-top: 22px; text-align: center; }
+.brand-foot img { width: 84px; height: 84px; opacity: .9; }
+:root[data-theme='dark'] .brand-foot img { opacity: .75; }
 </style>

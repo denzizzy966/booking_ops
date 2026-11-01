@@ -15,19 +15,34 @@ store.applyTheme()
 store.applyRail()
 store.bindNetwork()
 
-// Bootstrap (menu per role, properti, kamar) dulu → router guard tahu menu mana yang boleh.
-store.load().finally(() => {
+// Splash (index.html) dilepas setelah app tampil.
+function hideSplash() {
+  const s = document.getElementById('splash')
+  if (!s) return
+  s.classList.add('hide')
+  setTimeout(() => s.remove(), 400)
+}
+
+// Belum login (halaman disajikan bench untuk Guest) → langsung layar login PWA.
+// Sudah login → bootstrap (menu per role, properti, kamar) dulu supaya router guard tahu menu mana yang boleh.
+const servedByBench = !!window.bookingops_user && !String(window.bookingops_user).includes('{{')
+const start = servedByBench && window.bookingops_user === 'Guest' ? Promise.resolve((store.needLogin = true)) : store.load()
+start.finally(() => {
   app.use(router)
   app.mount('#app')
+  requestAnimationFrame(hideSplash)
 })
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault()
   store.installPrompt = e
 })
+window.addEventListener('appinstalled', () => {
+  store.installPrompt = null
+  store.isStandalone = true
+})
 
 // Service worker hanya saat disajikan bench (scope tanpa slash akhir, sama seperti Stock Ops).
-const servedByBench = !!window.bookingops_user && !String(window.bookingops_user).includes('{{')
 if (servedByBench && 'serviceWorker' in navigator) {
   navigator.serviceWorker.register('/booking_ops_sw.js', { scope: '/booking_ops' }).catch(() => {})
 }

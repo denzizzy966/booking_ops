@@ -2,6 +2,7 @@
 import { onMounted, onBeforeUnmount } from 'vue'
 import { useApp } from './stores/app'
 import NavBar from './components/NavBar.vue'
+import LoginView from './views/LoginView.vue'
 
 const app = useApp()
 // Badge pesan belum dibaca: cek tiap menit (dilewati saat tab tersembunyi / offline).
@@ -19,13 +20,14 @@ const icon = import.meta.env.BASE_URL + 'icon-192.png'
 </script>
 
 <template>
-  <div v-if="app.bootError" class="fatal">
+  <LoginView v-if="app.needLogin" />
+  <div v-else-if="app.bootError" class="fatal">
     <img :src="icon" alt="" class="fatal-logo" />
     <h2>Booking Ops</h2>
     <p>{{ app.bootError }}</p>
     <div class="row" style="justify-content: center">
       <button class="btn brand" @click="app.load()"><Icon name="sync" /> Coba lagi</button>
-      <a class="btn" href="/login?redirect-to=/booking_ops">Login</a>
+      <button class="btn" @click="app.logout()"><Icon name="logout" /> Ganti akun</button>
     </div>
   </div>
   <div v-else class="layout">

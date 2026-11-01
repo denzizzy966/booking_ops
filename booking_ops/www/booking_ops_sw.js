@@ -2,7 +2,7 @@
 // Disajikan dari root (/booking_ops_sw.js) agar scope "/booking_ops" (tanpa slash akhir) diizinkan.
 // Data (/api) tidak di-cache di sini; app menyimpan salinan terakhir sendiri (localStorage).
 
-const CACHE = 'bookingops-v1'
+const CACHE = 'bookingops-v2'
 const APP_SHELL = '/booking_ops'
 
 self.addEventListener('install', () => self.skipWaiting())

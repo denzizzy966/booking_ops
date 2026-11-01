@@ -6,6 +6,7 @@ import { cached, call } from '../lib/api'
 import { addDays, today, fmtDate, relDay, compact, pct } from '../lib/util'
 import AppBar from '../components/AppBar.vue'
 import BookingCard from '../components/BookingCard.vue'
+import InstallBanner from '../components/InstallBanner.vue'
 
 const app = useApp()
 const router = useRouter()
@@ -87,6 +88,7 @@ const open = (b) => router.push(`/booking/${b.booking_id}`)
         </div>
       </div>
 
+      <InstallBanner class="mt12" />
       <div v-if="stale" class="banner-offline mt12"><Icon name="warn" /> Offline — menampilkan data terakhir</div>
       <button v-if="s.attention && app.can('sync')" class="alert-row mt12" @click="router.push('/sync')">
         <Icon name="warn" /><span class="grow">{{ s.attention }} booking perlu perhatian (Sales Order)</span><Icon name="right" />

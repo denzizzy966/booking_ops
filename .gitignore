@@ -1,0 +1,26 @@
+# Secrets
+**/.env
+**/.env.local
+*.pem
+*.key
+frappe_api_keys*.csv
+
+# Node / Vite
+node_modules/
+frontend/dist/
+frontend/dev-dist/
+**/.vite/
+*.log
+
+# Python / Frappe
+__pycache__/
+*.pyc
+
+# Bundle PWA hasil build SENGAJA di-commit (booking_ops/public/booking_ops/ dan
+# booking_ops/www/booking_ops/index.html) supaya /booking_ops jalan tanpa build Node di server.
+# Bangun ulang sebelum commit:  cd frontend && npm run build:frappe
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.claude/

@@ -1,0 +1,43 @@
+{
+ "actions": [],
+ "creation": "2026-11-01 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "menu",
+  "role"
+ ],
+ "fields": [
+  {
+   "fieldname": "menu",
+   "fieldtype": "Select",
+   "label": "Menu",
+   "options": "dashboard\ncalendar\nbookings\nnew_booking\nedit_booking\nfront_desk\navailability\nsales_order\nsync\nreports",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 4
+  },
+  {
+   "fieldname": "role",
+   "fieldtype": "Link",
+   "label": "Role",
+   "options": "Role",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 4
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-01 00:00:00",
+ "modified_by": "Administrator",
+ "module": "Booking Ops",
+ "name": "Booking Ops Menu Role",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1
+}

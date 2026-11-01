@@ -1,0 +1,43 @@
+{
+ "actions": [],
+ "creation": "2026-11-01 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "channel",
+  "customer"
+ ],
+ "fields": [
+  {
+   "fieldname": "channel",
+   "fieldtype": "Data",
+   "label": "Channel Beds24",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 4,
+   "description": "Kode channel Beds24, mis. booking, airbnb, expedia, agoda, traveloka, tiket, direct"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 4
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-01 00:00:00",
+ "modified_by": "Administrator",
+ "module": "Booking Ops",
+ "name": "Booking Ops Channel Customer",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1
+}

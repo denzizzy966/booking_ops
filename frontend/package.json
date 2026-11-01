@@ -1,0 +1,22 @@
+{
+  "name": "booking-ops-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Booking Ops PWA (Vue 3) — Beds24 + ERPNext Sales Order",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "build:frappe": "node scripts/build-frappe.mjs"
+  },
+  "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "pinia": "^2.1.7",
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vite": "^5.2.0"
+  }
+}

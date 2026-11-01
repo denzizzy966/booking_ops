@@ -1,0 +1,125 @@
+{
+ "actions": [],
+ "creation": "2026-11-01 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "property_id",
+  "property_name",
+  "enabled",
+  "currency",
+  "cb1",
+  "company",
+  "city",
+  "check_in_start",
+  "check_out_end",
+  "last_imported"
+ ],
+ "fields": [
+  {
+   "fieldname": "property_id",
+   "fieldtype": "Data",
+   "label": "Property ID",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "property_name",
+   "fieldtype": "Data",
+   "label": "Nama Properti",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Tampil di Aplikasi",
+   "default": "1",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Mata Uang",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "description": "Kosong = Company di Booking Ops Settings."
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "Kota"
+  },
+  {
+   "fieldname": "check_in_start",
+   "fieldtype": "Data",
+   "label": "Check-in Mulai"
+  },
+  {
+   "fieldname": "check_out_end",
+   "fieldtype": "Data",
+   "label": "Check-out Paling Lambat"
+  },
+  {
+   "fieldname": "last_imported",
+   "fieldtype": "Datetime",
+   "label": "Diambil Terakhir",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-01 00:00:00",
+ "modified_by": "Administrator",
+ "module": "Booking Ops",
+ "name": "Beds24 Property",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Booking Ops Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Booking Ops User",
+   "read": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "field:property_id",
+ "naming_rule": "By fieldname",
+ "title_field": "property_name",
+ "show_title_field_in_link": 1,
+ "search_fields": "property_name",
+ "track_changes": 1
+}

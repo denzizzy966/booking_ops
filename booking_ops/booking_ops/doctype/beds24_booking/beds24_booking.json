@@ -1,0 +1,489 @@
+{
+ "actions": [],
+ "creation": "2026-11-01 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "booking_id",
+  "guest_name",
+  "status",
+  "stay_status",
+  "sub_status",
+  "cb0",
+  "property",
+  "room",
+  "unit_id",
+  "unit_name",
+  "room_qty",
+  "master_id",
+  "sb_stay",
+  "arrival",
+  "departure",
+  "nights",
+  "arrival_time",
+  "cb1",
+  "num_adult",
+  "num_child",
+  "checked_in_at",
+  "checked_out_at",
+  "sb_guest",
+  "title",
+  "first_name",
+  "last_name",
+  "company_name",
+  "cb2",
+  "email",
+  "phone",
+  "mobile",
+  "country",
+  "lang",
+  "sb_money",
+  "price",
+  "deposit",
+  "tax",
+  "commission",
+  "cb3",
+  "currency",
+  "paid",
+  "rate_description",
+  "sb_src",
+  "channel",
+  "referer",
+  "api_source",
+  "cb4",
+  "api_reference",
+  "reference",
+  "booking_time",
+  "modified_time",
+  "cancel_time",
+  "sb_notes",
+  "comments",
+  "notes",
+  "sb_erp",
+  "customer",
+  "sales_order",
+  "cb5",
+  "sync_state",
+  "sync_error",
+  "so_hash",
+  "sb_raw",
+  "invoice_json",
+  "info_json",
+  "raw_json"
+ ],
+ "fields": [
+  {
+   "fieldname": "booking_id",
+   "fieldtype": "Data",
+   "label": "Booking ID",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "guest_name",
+   "fieldtype": "Data",
+   "label": "Tamu",
+   "in_list_view": 1,
+   "in_global_search": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status Beds24",
+   "options": "confirmed\nnew\nrequest\ninquiry\nblack\ncancelled",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "stay_status",
+   "fieldtype": "Select",
+   "label": "Status Inap",
+   "options": "Expected\nChecked In\nChecked Out\nNo Show",
+   "default": "Expected",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "sub_status",
+   "fieldtype": "Data",
+   "label": "Sub-status"
+  },
+  {
+   "fieldname": "cb0",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "property",
+   "fieldtype": "Link",
+   "label": "Properti",
+   "options": "Beds24 Property",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "room",
+   "fieldtype": "Link",
+   "label": "Tipe Kamar",
+   "options": "Beds24 Room",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "unit_id",
+   "fieldtype": "Data",
+   "label": "Unit ID"
+  },
+  {
+   "fieldname": "unit_name",
+   "fieldtype": "Data",
+   "label": "Unit"
+  },
+  {
+   "fieldname": "room_qty",
+   "fieldtype": "Int",
+   "label": "Jumlah Kamar",
+   "default": "1"
+  },
+  {
+   "fieldname": "master_id",
+   "fieldtype": "Data",
+   "label": "Master (Grup)"
+  },
+  {
+   "fieldname": "sb_stay",
+   "fieldtype": "Section Break",
+   "label": "Menginap"
+  },
+  {
+   "fieldname": "arrival",
+   "fieldtype": "Date",
+   "label": "Kedatangan",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "departure",
+   "fieldtype": "Date",
+   "label": "Keberangkatan"
+  },
+  {
+   "fieldname": "nights",
+   "fieldtype": "Int",
+   "label": "Malam",
+   "read_only": 1
+  },
+  {
+   "fieldname": "arrival_time",
+   "fieldtype": "Data",
+   "label": "Jam Tiba"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "num_adult",
+   "fieldtype": "Int",
+   "label": "Dewasa"
+  },
+  {
+   "fieldname": "num_child",
+   "fieldtype": "Int",
+   "label": "Anak"
+  },
+  {
+   "fieldname": "checked_in_at",
+   "fieldtype": "Datetime",
+   "label": "Check-in",
+   "read_only": 1
+  },
+  {
+   "fieldname": "checked_out_at",
+   "fieldtype": "Datetime",
+   "label": "Check-out",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_guest",
+   "fieldtype": "Section Break",
+   "label": "Tamu"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Sapaan"
+  },
+  {
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "label": "Nama Depan"
+  },
+  {
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "label": "Nama Belakang"
+  },
+  {
+   "fieldname": "company_name",
+   "fieldtype": "Data",
+   "label": "Perusahaan"
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "in_global_search": 1,
+   "description": "Apa adanya dari Beds24 (email OTA bisa tidak valid)."
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Telepon"
+  },
+  {
+   "fieldname": "mobile",
+   "fieldtype": "Data",
+   "label": "HP",
+   "in_global_search": 1
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "label": "Negara"
+  },
+  {
+   "fieldname": "lang",
+   "fieldtype": "Data",
+   "label": "Bahasa"
+  },
+  {
+   "fieldname": "sb_money",
+   "fieldtype": "Section Break",
+   "label": "Harga"
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Float",
+   "label": "Harga Total"
+  },
+  {
+   "fieldname": "deposit",
+   "fieldtype": "Float",
+   "label": "Deposit"
+  },
+  {
+   "fieldname": "tax",
+   "fieldtype": "Float",
+   "label": "Pajak"
+  },
+  {
+   "fieldname": "commission",
+   "fieldtype": "Float",
+   "label": "Komisi"
+  },
+  {
+   "fieldname": "cb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Mata Uang",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "paid",
+   "fieldtype": "Float",
+   "label": "Sudah Dibayar",
+   "read_only": 1,
+   "description": "Total pembayaran di invoice Beds24."
+  },
+  {
+   "fieldname": "rate_description",
+   "fieldtype": "Small Text",
+   "label": "Deskripsi Tarif"
+  },
+  {
+   "fieldname": "sb_src",
+   "fieldtype": "Section Break",
+   "label": "Sumber"
+  },
+  {
+   "fieldname": "channel",
+   "fieldtype": "Data",
+   "label": "Channel",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "referer",
+   "fieldtype": "Data",
+   "label": "Referer"
+  },
+  {
+   "fieldname": "api_source",
+   "fieldtype": "Data",
+   "label": "Sumber API"
+  },
+  {
+   "fieldname": "cb4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "api_reference",
+   "fieldtype": "Data",
+   "label": "Referensi Channel",
+   "in_global_search": 1
+  },
+  {
+   "fieldname": "reference",
+   "fieldtype": "Data",
+   "label": "Referensi"
+  },
+  {
+   "fieldname": "booking_time",
+   "fieldtype": "Datetime",
+   "label": "Waktu Booking"
+  },
+  {
+   "fieldname": "modified_time",
+   "fieldtype": "Datetime",
+   "label": "Diubah di Beds24"
+  },
+  {
+   "fieldname": "cancel_time",
+   "fieldtype": "Datetime",
+   "label": "Waktu Batal"
+  },
+  {
+   "fieldname": "sb_notes",
+   "fieldtype": "Section Break",
+   "label": "Catatan"
+  },
+  {
+   "fieldname": "comments",
+   "fieldtype": "Small Text",
+   "label": "Catatan Tamu"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Catatan Internal"
+  },
+  {
+   "fieldname": "sb_erp",
+   "fieldtype": "Section Break",
+   "label": "ERPNext"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cb5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sync_state",
+   "fieldtype": "Select",
+   "label": "Status Sinkron",
+   "options": "Synced\nNeeds Review\nError\nSkipped",
+   "default": "Synced",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "sync_error",
+   "fieldtype": "Small Text",
+   "label": "Pesan Sinkron"
+  },
+  {
+   "fieldname": "so_hash",
+   "fieldtype": "Data",
+   "label": "Sidik SO",
+   "hidden": 1
+  },
+  {
+   "fieldname": "sb_raw",
+   "fieldtype": "Section Break",
+   "label": "Data Mentah",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "invoice_json",
+   "fieldtype": "Long Text",
+   "label": "Invoice Items (JSON)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "info_json",
+   "fieldtype": "Long Text",
+   "label": "Info Items (JSON)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "raw_json",
+   "fieldtype": "Long Text",
+   "label": "Data Beds24 (JSON)",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-01 00:00:00",
+ "modified_by": "Administrator",
+ "module": "Booking Ops",
+ "name": "Beds24 Booking",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Booking Ops Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Booking Ops User",
+   "read": 1,
+   "write": 1,
+   "create": 1
+  }
+ ],
+ "sort_field": "arrival",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "field:booking_id",
+ "naming_rule": "By fieldname",
+ "title_field": "guest_name",
+ "show_title_field_in_link": 1,
+ "search_fields": "guest_name,arrival,status",
+ "track_changes": 1
+}

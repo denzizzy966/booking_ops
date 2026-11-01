@@ -1,0 +1,92 @@
+{
+ "actions": [],
+ "creation": "2026-11-01 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "direction",
+  "event",
+  "booking_id",
+  "status",
+  "user",
+  "message",
+  "payload"
+ ],
+ "fields": [
+  {
+   "fieldname": "direction",
+   "fieldtype": "Select",
+   "label": "Arah",
+   "options": "Masuk\nKeluar\nSistem",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "event",
+   "fieldtype": "Data",
+   "label": "Kejadian",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "booking_id",
+   "fieldtype": "Data",
+   "label": "Booking ID",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "OK\nError\nDilewati",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Pesan"
+  },
+  {
+   "fieldname": "payload",
+   "fieldtype": "Long Text",
+   "label": "Payload"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-01 00:00:00",
+ "modified_by": "Administrator",
+ "module": "Booking Ops",
+ "name": "Beds24 Sync Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Booking Ops Manager",
+   "read": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "hash",
+ "in_create": 1
+}

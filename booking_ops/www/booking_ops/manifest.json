@@ -1,0 +1,18 @@
+{
+  "id": "/booking_ops",
+  "name": "Booking Ops — Real Magick Indonesia",
+  "short_name": "Booking Ops",
+  "description": "Booking Beds24 + Sales Order ERPNext (HP & tablet)",
+  "start_url": "/booking_ops",
+  "scope": "/booking_ops",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1f1912",
+  "theme_color": "#8a6f4e",
+  "lang": "id",
+  "icons": [
+    { "src": "/assets/booking_ops/booking_ops/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/booking_ops/booking_ops/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/booking_ops/booking_ops/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

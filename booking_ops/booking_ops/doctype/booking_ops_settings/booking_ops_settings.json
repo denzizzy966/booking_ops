@@ -1,0 +1,411 @@
+{
+ "actions": [],
+ "creation": "2026-11-01 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "sb_conn",
+  "sandbox_mode",
+  "api_base",
+  "invite_code",
+  "connect_btn",
+  "long_life_token",
+  "refresh_token",
+  "cb_conn",
+  "connection_status",
+  "connected_at",
+  "test_btn",
+  "import_btn",
+  "sb_sandbox",
+  "sandbox_help",
+  "sandbox_ota_btn",
+  "sandbox_cancel_btn",
+  "cb_sandbox",
+  "sandbox_reset_btn",
+  "sb_hook",
+  "webhook_key",
+  "webhook_url",
+  "webhook_help",
+  "sb_sync",
+  "enable_sync",
+  "initial_days_back",
+  "pull_btn",
+  "full_pull_btn",
+  "cb_sync",
+  "last_pull",
+  "last_pull_result",
+  "pull_cursor",
+  "sb_so",
+  "company",
+  "default_item",
+  "extra_item",
+  "line_mode",
+  "price_list",
+  "taxes_template",
+  "cb_so",
+  "customer_mode",
+  "default_customer",
+  "customer_group",
+  "territory",
+  "so_on_confirmed",
+  "so_on_new",
+  "so_on_request",
+  "auto_submit_so",
+  "cancel_so_on_cancel",
+  "sb_chan",
+  "channel_customers",
+  "sb_menu",
+  "menu_roles",
+  "menu_help"
+ ],
+ "fields": [
+  {
+   "fieldname": "sb_conn",
+   "fieldtype": "Section Break",
+   "label": "Koneksi Beds24"
+  },
+  {
+   "fieldname": "sandbox_mode",
+   "fieldtype": "Check",
+   "label": "Mode Sandbox (coba tanpa akun Beds24)",
+   "default": "0",
+   "description": "Centang untuk memakai Beds24 tiruan berisi data contoh (2 properti, 4 tipe kamar, booking di sekitar hari ini). Semua fitur jalan — termasuk Sales Order — tanpa menghubungi beds24.com. Matikan sebelum menghubungkan akun asli."
+  },
+  {
+   "fieldname": "api_base",
+   "fieldtype": "Data",
+   "label": "Alamat API",
+   "default": "https://beds24.com/api/v2",
+   "description": "Biarkan default. Ganti hanya untuk server uji.",
+   "depends_on": "eval:!doc.sandbox_mode"
+  },
+  {
+   "fieldname": "invite_code",
+   "fieldtype": "Password",
+   "label": "Invite Code",
+   "description": "Beds24 → Settings → Apps & Integrations → API → Generate invite code. Centang scope: bookings, bookings-personal, bookings-financial, inventory, properties. Tempel di sini lalu klik <b>Hubungkan</b>.",
+   "depends_on": "eval:!doc.sandbox_mode"
+  },
+  {
+   "fieldname": "connect_btn",
+   "fieldtype": "Button",
+   "label": "Hubungkan ke Beds24",
+   "depends_on": "eval:!doc.sandbox_mode"
+  },
+  {
+   "fieldname": "long_life_token",
+   "fieldtype": "Password",
+   "label": "Long Life Token (opsional)",
+   "description": "Alternatif invite code: token permanen dari halaman API Beds24.",
+   "depends_on": "eval:!doc.sandbox_mode"
+  },
+  {
+   "fieldname": "refresh_token",
+   "fieldtype": "Password",
+   "label": "Refresh Token",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_conn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "connection_status",
+   "fieldtype": "Data",
+   "label": "Status Koneksi",
+   "read_only": 1
+  },
+  {
+   "fieldname": "connected_at",
+   "fieldtype": "Datetime",
+   "label": "Terhubung Sejak",
+   "read_only": 1
+  },
+  {
+   "fieldname": "test_btn",
+   "fieldtype": "Button",
+   "label": "Tes Koneksi"
+  },
+  {
+   "fieldname": "import_btn",
+   "fieldtype": "Button",
+   "label": "Ambil Properti & Kamar"
+  },
+  {
+   "fieldname": "sb_sandbox",
+   "fieldtype": "Section Break",
+   "label": "Sandbox",
+   "depends_on": "sandbox_mode"
+  },
+  {
+   "fieldname": "sandbox_help",
+   "fieldtype": "HTML",
+   "options": "<div class=\"text-muted small\"><b>Langkah cepat:</b> Simpan → isi bagian <i>Sales Order</i> (Company, Item kamar) → klik <b>Ambil Properti &amp; Kamar</b> → <b>Reset Data Sandbox</b> (menarik semua booking contoh + membuat Sales Order). Lalu buka aplikasi. Tombol simulasi meniru booking/pembatalan yang datang dari Booking.com, Airbnb, dll. lewat webhook.</div>"
+  },
+  {
+   "fieldname": "sandbox_ota_btn",
+   "fieldtype": "Button",
+   "label": "Simulasi Booking Baru dari OTA"
+  },
+  {
+   "fieldname": "sandbox_cancel_btn",
+   "fieldtype": "Button",
+   "label": "Simulasi Pembatalan dari OTA"
+  },
+  {
+   "fieldname": "cb_sandbox",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sandbox_reset_btn",
+   "fieldtype": "Button",
+   "label": "Reset Data Sandbox"
+  },
+  {
+   "fieldname": "sb_hook",
+   "fieldtype": "Section Break",
+   "label": "Webhook Booking",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "webhook_key",
+   "fieldtype": "Data",
+   "label": "Kunci Webhook",
+   "read_only": 1
+  },
+  {
+   "fieldname": "webhook_url",
+   "fieldtype": "Data",
+   "label": "URL Webhook",
+   "read_only": 1
+  },
+  {
+   "fieldname": "webhook_help",
+   "fieldtype": "HTML",
+   "label": "Petunjuk",
+   "options": "<p>Di Beds24 buka <b>Settings → Properties → Access → Booking Webhook</b>, isi URL di atas, versi <b>2 – with personal data</b>. Setiap booking baru/berubah langsung masuk ke ERPNext. Tanpa webhook, sinkron berkala tiap 5 menit tetap berjalan.</p>"
+  },
+  {
+   "fieldname": "sb_sync",
+   "fieldtype": "Section Break",
+   "label": "Sinkronisasi"
+  },
+  {
+   "fieldname": "enable_sync",
+   "fieldtype": "Check",
+   "label": "Sinkron Otomatis Aktif",
+   "default": "1"
+  },
+  {
+   "fieldname": "initial_days_back",
+   "fieldtype": "Int",
+   "label": "Tarikan Pertama: Kedatangan Sejak (hari lalu)",
+   "default": "30"
+  },
+  {
+   "fieldname": "pull_btn",
+   "fieldtype": "Button",
+   "label": "Sinkron Sekarang"
+  },
+  {
+   "fieldname": "full_pull_btn",
+   "fieldtype": "Button",
+   "label": "Tarik Ulang Semua"
+  },
+  {
+   "fieldname": "cb_sync",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_pull",
+   "fieldtype": "Datetime",
+   "label": "Sinkron Terakhir",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_pull_result",
+   "fieldtype": "Small Text",
+   "label": "Hasil Sinkron Terakhir",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pull_cursor",
+   "fieldtype": "Data",
+   "label": "Kursor Sinkron (UTC)",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "sb_so",
+   "fieldtype": "Section Break",
+   "label": "Sales Order"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "description": "Company untuk Sales Order. Bisa ditimpa per properti."
+  },
+  {
+   "fieldname": "default_item",
+   "fieldtype": "Link",
+   "label": "Item Kamar Default",
+   "options": "Item",
+   "description": "Item jasa (non-stok) untuk malam menginap bila kamar belum dipetakan ke item."
+  },
+  {
+   "fieldname": "extra_item",
+   "fieldtype": "Link",
+   "label": "Item Biaya Tambahan",
+   "options": "Item",
+   "description": "Dipakai mode 'Rincian Invoice Beds24' untuk baris selain kamar (sarapan, extra bed, dll)."
+  },
+  {
+   "fieldname": "line_mode",
+   "fieldtype": "Select",
+   "label": "Baris Sales Order",
+   "options": "Satu Baris Kamar\nRincian Invoice Beds24",
+   "default": "Satu Baris Kamar"
+  },
+  {
+   "fieldname": "price_list",
+   "fieldtype": "Link",
+   "label": "Price List",
+   "options": "Price List"
+  },
+  {
+   "fieldname": "taxes_template",
+   "fieldtype": "Link",
+   "label": "Template Pajak",
+   "options": "Sales Taxes and Charges Template"
+  },
+  {
+   "fieldname": "cb_so",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customer_mode",
+   "fieldtype": "Select",
+   "label": "Customer",
+   "options": "Customer per Tamu\nSatu Customer Default",
+   "default": "Customer per Tamu"
+  },
+  {
+   "fieldname": "default_customer",
+   "fieldtype": "Link",
+   "label": "Customer Default",
+   "options": "Customer",
+   "description": "Dipakai bila mode 'Satu Customer Default', atau tamu tanpa nama."
+  },
+  {
+   "fieldname": "customer_group",
+   "fieldtype": "Link",
+   "label": "Customer Group (tamu baru)",
+   "options": "Customer Group"
+  },
+  {
+   "fieldname": "territory",
+   "fieldtype": "Link",
+   "label": "Territory (tamu baru)",
+   "options": "Territory"
+  },
+  {
+   "fieldname": "so_on_confirmed",
+   "fieldtype": "Check",
+   "label": "Buat SO untuk status Confirmed",
+   "default": "1"
+  },
+  {
+   "fieldname": "so_on_new",
+   "fieldtype": "Check",
+   "label": "Buat SO untuk status New",
+   "default": "1"
+  },
+  {
+   "fieldname": "so_on_request",
+   "fieldtype": "Check",
+   "label": "Buat SO untuk status Request",
+   "default": "0"
+  },
+  {
+   "fieldname": "auto_submit_so",
+   "fieldtype": "Check",
+   "label": "Submit SO Otomatis",
+   "default": "0"
+  },
+  {
+   "fieldname": "cancel_so_on_cancel",
+   "fieldtype": "Check",
+   "label": "Batalkan SO saat Booking Dibatalkan",
+   "default": "1"
+  },
+  {
+   "fieldname": "sb_chan",
+   "fieldtype": "Section Break",
+   "label": "Customer per Channel",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "channel_customers",
+   "fieldtype": "Table",
+   "label": "Channel → Customer",
+   "options": "Booking Ops Channel Customer",
+   "description": "Booking dari channel ini ditagihkan ke customer tersebut (mis. OTA), bukan ke tamu."
+  },
+  {
+   "fieldname": "sb_menu",
+   "fieldtype": "Section Break",
+   "label": "Menu & Role"
+  },
+  {
+   "fieldname": "menu_roles",
+   "fieldtype": "Table",
+   "label": "Akses Menu per Role",
+   "options": "Booking Ops Menu Role"
+  },
+  {
+   "fieldname": "menu_help",
+   "fieldtype": "HTML",
+   "label": "Petunjuk Menu",
+   "options": "<p>Menu tanpa baris = terbuka untuk semua <b>Booking Ops User</b>. Bila sebuah menu punya baris, hanya role yang tercantum yang bisa membukanya. <b>Booking Ops Manager</b> dan System Manager selalu bisa semua menu.</p><p><code>dashboard</code> Beranda · <code>calendar</code> Kalender · <code>bookings</code> Daftar &amp; detail booking · <code>new_booking</code> Booking baru · <code>edit_booking</code> Ubah/batalkan booking · <code>front_desk</code> Check-in/check-out · <code>availability</code> Ketersediaan &amp; harga · <code>sales_order</code> Lihat Sales Order · <code>sync</code> Sinkronisasi &amp; log · <code>reports</code> Laporan</p>"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-01 20:00:00",
+ "modified_by": "Administrator",
+ "module": "Booking Ops",
+ "name": "Booking Ops Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Booking Ops Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "issingle": 1
+}

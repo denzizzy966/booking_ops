@@ -1,0 +1,147 @@
+{
+ "actions": [],
+ "creation": "2026-11-01 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "room_id",
+  "property",
+  "room_name",
+  "room_type",
+  "enabled",
+  "cb1",
+  "qty",
+  "max_people",
+  "rack_rate",
+  "item_code",
+  "sort_order",
+  "sb_units",
+  "units_json"
+ ],
+ "fields": [
+  {
+   "fieldname": "room_id",
+   "fieldtype": "Data",
+   "label": "Room ID",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "property",
+   "fieldtype": "Link",
+   "label": "Properti",
+   "options": "Beds24 Property",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "room_name",
+   "fieldtype": "Data",
+   "label": "Nama Tipe Kamar",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "room_type",
+   "fieldtype": "Data",
+   "label": "Jenis"
+  },
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Tampil di Aplikasi",
+   "default": "1"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Int",
+   "label": "Jumlah Unit"
+  },
+  {
+   "fieldname": "max_people",
+   "fieldtype": "Int",
+   "label": "Maks. Tamu"
+  },
+  {
+   "fieldname": "rack_rate",
+   "fieldtype": "Float",
+   "label": "Harga Dasar"
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "label": "Item ERPNext",
+   "options": "Item",
+   "in_list_view": 1,
+   "description": "Item jasa untuk Sales Order. Kosong = Item Kamar Default."
+  },
+  {
+   "fieldname": "sort_order",
+   "fieldtype": "Int",
+   "label": "Urutan"
+  },
+  {
+   "fieldname": "sb_units",
+   "fieldtype": "Section Break",
+   "label": "Unit",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "units_json",
+   "fieldtype": "Long Text",
+   "label": "Unit (JSON)",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-01 00:00:00",
+ "modified_by": "Administrator",
+ "module": "Booking Ops",
+ "name": "Beds24 Room",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Booking Ops Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Booking Ops User",
+   "read": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "field:room_id",
+ "naming_rule": "By fieldname",
+ "title_field": "room_name",
+ "show_title_field_in_link": 1,
+ "search_fields": "room_name,property",
+ "track_changes": 1
+}

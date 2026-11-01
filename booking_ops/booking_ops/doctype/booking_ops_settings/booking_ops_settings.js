@@ -7,6 +7,14 @@ function run(frm, method, args, busy) {
 
 function simulate(frm, kind) {
 	run(frm, 'sandbox_simulate', { kind }, __('Mengirim simulasi webhook…')).then((m) => {
+		if (kind === 'message') {
+			frappe.msgprint({
+				title: __('Pesan tamu masuk'),
+				indicator: 'blue',
+				message: `<b>${frappe.utils.escape_html(m.guest_name || '')}</b> · ${m.channel} · #${m.booking_id}<br><i>${frappe.utils.escape_html(m.message)}</i><br><a href="/booking_ops#/messages/${m.booking_id}" target="_blank">${__('Buka di Booking Ops')}</a>`,
+			})
+			return
+		}
 		const so = m.sales_order ? __('Sales Order {0}', [`<a href="/app/sales-order/${m.sales_order}">${m.sales_order}</a>`]) : __('tanpa Sales Order ({0})', [m.sync_state])
 		frappe.msgprint({
 			title: kind === 'new' ? __('Booking baru masuk') : __('Booking dibatalkan'),
@@ -39,6 +47,7 @@ frappe.ui.form.on('Booking Ops Settings', {
 	},
 	sandbox_ota_btn(frm) { simulate(frm, 'new') },
 	sandbox_cancel_btn(frm) { simulate(frm, 'cancel') },
+	sandbox_msg_btn(frm) { simulate(frm, 'message') },
 	sandbox_reset_btn(frm) {
 		frappe.confirm(__('Kembalikan data contoh sandbox lalu tarik ulang semua booking? Dokumen ERPNext yang sudah ada tidak dihapus.'), () =>
 			run(frm, 'sandbox_reset', {}, __('Menyiapkan data sandbox…')).then((m) =>

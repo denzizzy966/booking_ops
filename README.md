@@ -49,9 +49,38 @@ yang tercantum yang bisa membukanya. Contoh:
 | `front_desk` | Front Desk |
 | `new_booking` | Reservasi |
 | `edit_booking` | Reservasi |
+| `reply_message` | Front Desk, Reservasi |
 | `reports` | Booking Ops Manager |
 
 Aturan ini juga ditegakkan di server pada setiap endpoint, tidak hanya menyembunyikan tombol.
+
+## Pesan tamu
+
+Pesan dari tamu (Airbnb, Booking.com, VRBO, dll.) diambil lewat Beds24 API
+`GET/POST /bookings/messages`. Pesan disimpan di DocType **Beds24 Message**.
+
+- **Menu Pesan:**
+  - Daftar percakapan per booking, dengan badge jumlah pesan belum dibaca di tab bawah dan
+    peringatan di Beranda.
+  - Bisa dicari menurut nama, nomor booking, atau isi pesan.
+- **Percakapan:**
+  - Balas tamu; balasan diteruskan Beds24 ke channel-nya.
+  - Lampirkan foto atau PDF, maksimal 5 MB. Foto besar diperkecil otomatis.
+  - Tulis **catatan internal** yang tidak terkirim ke tamu.
+  - Membuka percakapan menandai pesan tamu sudah dibaca, juga di Beds24.
+- **Masuknya pesan:**
+  - Ditarik berkala bersama sinkron 5 menit (setelan *Ambil Pesan Tamu*, *N hari terakhir*).
+  - Ikut tersimpan bila payload webhook membawa `messages`.
+  - Tombol ⟳ di menu Pesan menarik 30 hari terakhir.
+  - Percakapan yang sedang terbuka dimuat ulang tiap 30 detik.
+- **Hak akses:**
+  - `messages`: melihat pesan.
+  - `reply_message`: membalas dan menulis catatan.
+
+  Membalas ditolak di server bila role tidak punya akses.
+
+Catatan: webhook Beds24 terpicu oleh perubahan booking, bukan oleh pesan baru. Karena itu
+pesan baru muncul paling lambat saat sinkron berkala berikutnya, dan itu butuh scheduler aktif.
 
 ## Mode Sandbox (coba tanpa akun Beds24)
 
@@ -67,6 +96,8 @@ Beds24 tidak menyediakan sandbox resmi, jadi app ini membawa **Beds24 tiruan** s
   PWA) meniru booking dari Booking.com, Airbnb, dll. yang masuk lewat webhook.
 - **Reset Data Sandbox** mengembalikan data contoh. Dokumen ERPNext yang sudah dibuat tidak
   dihapus.
+- **Simulasi Pesan dari Tamu** meniru pesan masuk ke booking OTA yang aktif. Data contoh juga
+  sudah berisi beberapa percakapan.
 - PWA menampilkan label kuning **Sandbox** selama mode ini aktif.
 
 Siapkan semuanya dengan satu perintah. Perintah ini mengisi setelan yang kosong, membuat Item

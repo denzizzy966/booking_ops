@@ -43,6 +43,17 @@ GUESTS = [
 	("Putu", "Ayu", "ID"), ("Kim", "Jiwoo", "KR"), ("Liam", "Smith", "AU"), ("Wayan", "Sudarma", "ID"),
 ]
 
+GUEST_MSGS = [
+	"Hi, what time can we check in? Our flight lands at 11am.",
+	"Halo, apakah bisa minta extra bed untuk anak?",
+	"Is airport pickup available? How much does it cost?",
+	"Can we leave our luggage after check-out?",
+	"Selamat siang, apakah sarapan sudah termasuk?",
+	"We will arrive late, around 11pm. Is that ok?",
+	"Could you recommend a good restaurant nearby?",
+	"Apakah ada parkir untuk mobil?",
+]
+
 
 def active():
 	return cint(frappe.get_cached_doc("Booking Ops Settings").get("sandbox_mode"))
@@ -62,9 +73,12 @@ def _now():
 def _load():
 	try:
 		with open(_path(), encoding="utf-8") as fh:
-			return json.load(fh)
+			state = json.load(fh)
 	except (OSError, ValueError):
 		return _seed()
+	state.setdefault("messages", {})  # file dari versi sebelum fitur pesan
+	state.setdefault("next_msg_id", 900001)
+	return state
 
 
 def _save(state):
@@ -138,7 +152,36 @@ def _seed():
 		first, last, country = next(g)
 		_mk(state, room, unit, d(a), n, first, last, country, ch, **kw)
 	_mk(state, 2101, 1, d(8), 3, "", "", "", "", status="black", price=0, notes="Perawatan kolam")
+	state["messages"], state["next_msg_id"] = {}, 900001
+	for bid, src, text, hours, read in [
+		(50001, "system", "Booking.com: reservation confirmed.", 50, True),
+		(50001, "guest", "Hi! Is early check-in possible? We arrive at 10am.", 5, False),
+		(50002, "guest", "Hello, can you arrange airport pickup for 4 people?", 26, True),
+		(50002, "host", "Hi Sarah, yes we can. IDR 350.000 per car. Shall we book it?", 25, True),
+		(50002, "guest", "Yes please, flight QZ 512 landing 13:20. Thanks!", 3, False),
+		(50010, "guest", "Halo, apakah kamarnya ada bathtub?", 1, False),
+		(50012, "internalNote", "Tamu VIP, siapkan welcome drink.", 30, True),
+	]:
+		_msg(state, bid, src, text, time=_ago(hours), read=read)
 	return state
+
+
+def _ago(hours):
+	return (datetime.now(timezone.utc) - timedelta(hours=hours)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _msg(state, booking_id, source, text, time=None, read=None, **kw):
+	i = state["next_msg_id"]
+	state["next_msg_id"] += 1
+	b = state["bookings"].get(str(booking_id)) or {}
+	m = {
+		"id": i, "bookingId": int(booking_id), "roomId": b.get("roomId"), "propertyId": b.get("propertyId"),
+		"time": time or _now(), "read": (source != "guest") if read is None else read, "message": text,
+		"source": source, "attachment": None, "attachmentName": None, "attachmentMimeType": None,
+	}
+	m.update(kw)
+	state["messages"][str(i)] = m
+	return m
 
 
 def _busy(state, room, arrival, departure, exclude=None):
@@ -182,8 +225,12 @@ def handle(method, path, params=None, body=None):
 			return _ok(_bookings(state, q))
 		if path.startswith("/inventory/rooms/"):
 			return _ok(_inventory(state, path.rsplit("/", 1)[-1], q))
+		if path == "/bookings/messages":
+			return _ok(_messages(state, q))
 	elif method == "POST" and path == "/bookings":
 		return _with_state(lambda state: [_write(state, dict(r)) for r in _list(body)])
+	elif method == "POST" and path == "/bookings/messages":
+		return _with_state(lambda state: [_write_message(state, dict(r)) for r in _list(body)])
 	_err(f"{method} {path} tidak didukung")
 
 
@@ -202,6 +249,42 @@ def _bookings(state, q):
 	if pids:
 		rows = [b for b in rows if b["propertyId"] in pids]
 	return rows
+
+
+def _messages(state, q):
+	rows = sorted(state["messages"].values(), key=lambda m: m["time"])
+	ids = {cint(x) for x in _list(q.get("bookingId"))}
+	if ids:
+		rows = [m for m in rows if m["bookingId"] in ids]
+	pids = {cint(x) for x in _list(q.get("propertyId"))}
+	if pids:
+		rows = [m for m in rows if m["propertyId"] in pids]
+	if q.get("filter") in ("read", "unread"):
+		want = q["filter"] == "read"
+		rows = [m for m in rows if bool(m["read"]) == want]
+	if q.get("source"):
+		rows = [m for m in rows if m["source"] == q["source"]]
+	if q.get("maxAge"):
+		since = _ago(24 * cint(q["maxAge"]))
+		rows = [m for m in rows if m["time"] >= since]
+	return rows
+
+
+def _write_message(state, r):
+	if r.get("id"):
+		m = state["messages"].get(str(cint(r["id"])))
+		if not m:
+			return {"success": False, "errors": [{"action": "modify", "message": "Message not found"}]}
+		if "read" in r:
+			m["read"] = bool(r["read"])
+		return {"success": True, "modified": {"id": m["id"]}}
+	if str(cint(r.get("bookingId"))) not in state["bookings"]:
+		return {"success": False, "errors": [{"action": "create", "message": "Invalid bookingId"}]}
+	if not (r.get("message") or r.get("attachment")):
+		return {"success": False, "errors": [{"action": "create", "message": "Message is empty"}]}
+	m = _msg(state, r["bookingId"], r.get("source") or "host", r.get("message") or "",
+			 attachment=r.get("attachment"), attachmentName=r.get("attachmentName"), attachmentMimeType=r.get("attachmentMimeType"))
+	return {"success": True, "new": {"id": m["id"]}}
 
 
 def _inventory(state, kind, q):
@@ -284,17 +367,20 @@ def reset():
 		state = _seed()
 		old = _load_raw_next_id()
 		state["next_id"] = max(state["next_id"], old)  # id baru tak bentrok dengan booking lama di ERPNext
+		state["next_msg_id"] = max(state["next_msg_id"], _load_raw_next_id("next_msg_id"))
 		_save(state)
 	frappe.db.set_single_value("Booking Ops Settings", "pull_cursor", None)
 	from booking_ops import sync
 
-	return sync.pull_changes(full=True)
+	out = sync.pull_changes(full=True)
+	out["messages"] = sync.pull_messages(max_age=30).get("created", 0)
+	return out
 
 
-def _load_raw_next_id():
+def _load_raw_next_id(key="next_id"):
 	try:
 		with open(_path(), encoding="utf-8") as fh:
-			return cint(json.load(fh).get("next_id"))
+			return cint(json.load(fh).get(key))
 	except (OSError, ValueError):
 		return 0
 
@@ -327,6 +413,8 @@ def simulate(kind="new"):
 		b.update({"status": "cancelled", "subStatus": "cancelledByGuest", "cancelTime": _now(), "modifiedTime": _now()})
 		return b
 
+	if kind == "message":
+		return _simulate_message()
 	if kind not in ("new", "cancel"):
 		frappe.throw(_("Jenis simulasi tidak dikenal."))
 	b = _with_state(new if kind == "new" else cancel)
@@ -343,6 +431,31 @@ def simulate(kind="new"):
 		"sales_order": doc.sales_order,
 		"sync_state": doc.sync_state,
 	}
+
+
+def _simulate_message():
+	"""Tamu (booking OTA yang akan datang / sedang menginap) mengirim pesan."""
+	from booking_ops import sync
+
+	def add(state):
+		today = date.today()
+		lo, hi = str(today - timedelta(days=3)), str(today + timedelta(days=10))
+		rows = [
+			b for b in state["bookings"].values()
+			if b["status"] in ("confirmed", "new") and b["channel"] in OTA and lo <= b["arrival"] <= hi
+			and frappe.db.exists("Beds24 Booking", str(b["id"]))
+		]
+		if not rows:
+			frappe.throw(_("Tidak ada booking OTA aktif untuk dikirimi pesan. Klik Reset Data Sandbox."))
+		b = random.choice(rows)
+		return _msg(state, b["id"], "guest", random.choice(GUEST_MSGS))
+
+	m = _with_state(add)
+	sync.pull_messages(booking_id=m["bookingId"])
+	sync.log("Masuk", "Pesan tamu (sandbox)", m["bookingId"], message=m["message"][:140])
+	frappe.db.commit()
+	b = frappe.db.get_value("Beds24 Booking", str(m["bookingId"]), ["guest_name", "channel"], as_dict=True)
+	return {"booking_id": str(m["bookingId"]), "guest_name": b.guest_name, "channel": b.channel, "message": m["message"]}
 
 
 def setup_demo(company=None):

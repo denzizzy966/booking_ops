@@ -91,6 +91,9 @@ const open = (b) => router.push(`/booking/${b.booking_id}`)
       <button v-if="s.attention && app.can('sync')" class="alert-row mt12" @click="router.push('/sync')">
         <Icon name="warn" /><span class="grow">{{ s.attention }} booking perlu perhatian (Sales Order)</span><Icon name="right" />
       </button>
+      <button v-if="app.unread && app.can('messages')" class="alert-row msg mt12" @click="router.push({ path: '/messages', query: { unread: '1' } })">
+        <Icon name="messages" /><span class="grow">{{ app.unread }} pesan tamu belum dibaca</span><Icon name="right" />
+      </button>
 
       <div class="kpis mt12">
         <button class="kpi" :class="{ on: tab === 'arrivals' }" @click="tab = 'arrivals'">
@@ -136,6 +139,8 @@ const open = (b) => router.push(`/booking/${b.booking_id}`)
 .occ-bar i { display: block; height: 100%; background: #fff; border-radius: 99px; transition: width .3s; }
 .alert-row { width: 100%; display: flex; gap: 10px; align-items: center; border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent); background: color-mix(in srgb, var(--warn) 12%, var(--card)); color: var(--ink); border-radius: 14px; padding: 12px 14px; font-weight: 600; text-align: left; }
 .alert-row .ico:first-child { color: var(--warn); }
+.alert-row.msg { border-color: color-mix(in srgb, var(--brand) 40%, transparent); background: color-mix(in srgb, var(--brand) 10%, var(--card)); }
+.alert-row.msg .ico:first-child { color: var(--brand); }
 .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .kpi { text-align: left; border: 2px solid transparent; background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: 12px; color: var(--ink); position: relative; }
 .kpi.on { border-color: var(--brand); }

@@ -27,8 +27,8 @@ after_install = "booking_ops.setup.install.after_install"
 after_migrate = "booking_ops.setup.install.after_migrate"
 
 scheduler_events = {
-	# Tarik booking yang berubah dari Beds24 (cadangan bila webhook terlewat).
-	"cron": {"*/5 * * * *": ["booking_ops.sync.scheduled_pull"]},
+	# Tarik booking yang berubah dari Beds24 (cadangan bila webhook terlewat) + pesan tamu.
+	"cron": {"*/5 * * * *": ["booking_ops.sync.scheduled_pull", "booking_ops.sync.scheduled_messages"]},
 	"daily": ["booking_ops.sync.daily"],
 }
 

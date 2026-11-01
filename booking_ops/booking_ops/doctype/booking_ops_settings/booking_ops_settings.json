@@ -21,6 +21,7 @@
   "sandbox_ota_btn",
   "sandbox_cancel_btn",
   "cb_sandbox",
+  "sandbox_msg_btn",
   "sandbox_reset_btn",
   "sb_hook",
   "webhook_key",
@@ -29,6 +30,8 @@
   "sb_sync",
   "enable_sync",
   "initial_days_back",
+  "enable_messages",
+  "message_days",
   "pull_btn",
   "full_pull_btn",
   "cb_sync",
@@ -157,6 +160,11 @@
    "fieldtype": "Column Break"
   },
   {
+   "fieldname": "sandbox_msg_btn",
+   "fieldtype": "Button",
+   "label": "Simulasi Pesan dari Tamu"
+  },
+  {
    "fieldname": "sandbox_reset_btn",
    "fieldtype": "Button",
    "label": "Reset Data Sandbox"
@@ -201,6 +209,21 @@
    "fieldtype": "Int",
    "label": "Tarikan Pertama: Kedatangan Sejak (hari lalu)",
    "default": "30"
+  },
+  {
+   "fieldname": "enable_messages",
+   "fieldtype": "Check",
+   "label": "Ambil Pesan Tamu",
+   "default": "1",
+   "description": "Tarik pesan tamu (Airbnb, Booking.com, dll.) bersama sinkron berkala."
+  },
+  {
+   "fieldname": "message_days",
+   "fieldtype": "Int",
+   "label": "Ambil Pesan N Hari Terakhir",
+   "default": "2",
+   "depends_on": "enable_messages",
+   "description": "Rentang tarik pesan berkala. Tarik pertama/manual mengambil 30 hari."
   },
   {
    "fieldname": "pull_btn",
@@ -368,12 +391,12 @@
    "fieldname": "menu_help",
    "fieldtype": "HTML",
    "label": "Petunjuk Menu",
-   "options": "<p>Menu tanpa baris = terbuka untuk semua <b>Booking Ops User</b>. Bila sebuah menu punya baris, hanya role yang tercantum yang bisa membukanya. <b>Booking Ops Manager</b> dan System Manager selalu bisa semua menu.</p><p><code>dashboard</code> Beranda · <code>calendar</code> Kalender · <code>bookings</code> Daftar &amp; detail booking · <code>new_booking</code> Booking baru · <code>edit_booking</code> Ubah/batalkan booking · <code>front_desk</code> Check-in/check-out · <code>availability</code> Ketersediaan &amp; harga · <code>sales_order</code> Lihat Sales Order · <code>sync</code> Sinkronisasi &amp; log · <code>reports</code> Laporan</p>"
+   "options": "<p>Menu tanpa baris = terbuka untuk semua <b>Booking Ops User</b>. Bila sebuah menu punya baris, hanya role yang tercantum yang bisa membukanya. <b>Booking Ops Manager</b> dan System Manager selalu bisa semua menu.</p><p><code>dashboard</code> Beranda · <code>calendar</code> Kalender · <code>bookings</code> Daftar &amp; detail booking · <code>messages</code> Lihat pesan tamu · <code>reply_message</code> Balas pesan &amp; catatan internal · <code>new_booking</code> Booking baru · <code>edit_booking</code> Ubah/batalkan booking · <code>front_desk</code> Check-in/check-out · <code>availability</code> Ketersediaan &amp; harga · <code>sales_order</code> Lihat Sales Order · <code>sync</code> Sinkronisasi &amp; log · <code>reports</code> Laporan</p>"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-01 20:00:00",
+ "modified": "2026-11-01 21:30:00",
  "modified_by": "Administrator",
  "module": "Booking Ops",
  "name": "Booking Ops Settings",

@@ -25,6 +25,11 @@ async function simulate(kind) {
   busy.value = kind
   try {
     const r = await call('sandbox_simulate', { kind }, { post: true })
+    if (kind === 'message') {
+      app.notify(`Pesan dari ${r.guest_name}: “${r.message}”`, 'success')
+      app.refreshUnread()
+      return router.push(`/messages/${r.booking_id}`)
+    }
     app.notify(`${kind === 'new' ? 'Booking baru' : 'Dibatalkan'}: ${r.guest_name} · #${r.booking_id}${r.sales_order ? ' · ' + r.sales_order : ''}`, 'success')
     await load()
     if (kind === 'new') router.push(`/booking/${r.booking_id}`)
@@ -77,11 +82,12 @@ async function run(full) {
 
       <div v-if="data && data.sandbox" class="card sandbox mt12">
         <div class="row" style="gap: 8px"><Icon name="flask" /><b>Mode Sandbox</b></div>
-        <p class="small muted" style="margin: 6px 0 10px">Data contoh, bukan Beds24 asli. Coba seolah-olah ada booking masuk dari OTA (Booking.com, Airbnb, dll.) lewat webhook.</p>
+        <p class="small muted" style="margin: 6px 0 10px">Data contoh, bukan Beds24 asli. Coba seolah-olah ada booking atau pesan tamu masuk dari OTA (Booking.com, Airbnb, dll.).</p>
         <div class="row">
           <button class="btn ok grow" :disabled="!!busy || !app.online" @click="simulate('new')"><Icon :name="busy === 'new' ? 'sync' : 'newcal'" :spin="busy === 'new'" /> Booking OTA baru</button>
           <button class="btn grow" :disabled="!!busy || !app.online" @click="simulate('cancel')"><Icon :name="busy === 'cancel' ? 'sync' : 'cancel'" :spin="busy === 'cancel'" /> OTA batal</button>
         </div>
+        <button v-if="app.can('messages')" class="btn block mt8" :disabled="!!busy || !app.online" @click="simulate('message')"><Icon :name="busy === 'message' ? 'sync' : 'messages'" :spin="busy === 'message'" /> Pesan dari tamu</button>
       </div>
 
       <template v-if="data && data.attention.length">

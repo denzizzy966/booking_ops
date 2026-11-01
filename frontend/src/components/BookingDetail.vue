@@ -128,6 +128,10 @@ async function resync() {
           <a v-if="phone" class="btn sm" :href="`tel:${phone}`"><Icon name="phone" /> Telepon</a>
           <a v-if="phone" class="btn sm" :href="waLink(phone)" target="_blank" rel="noopener"><Icon name="chat" /> WhatsApp</a>
           <a v-if="b.email" class="btn sm" :href="`mailto:${b.email}`"><Icon name="mail" /> Email</a>
+          <router-link v-if="app.can('messages') && (b.message_count || app.can('reply_message'))" class="btn sm msg-btn" :to="`/messages/${b.booking_id}`">
+            <Icon name="messages" /> Pesan<template v-if="b.message_count"> · {{ b.message_count }}</template>
+            <i v-if="b.unread_messages" class="nbadge inline">{{ b.unread_messages }}</i>
+          </router-link>
         </div>
       </div>
 
@@ -259,6 +263,8 @@ async function resync() {
 .head .guest { font-size: 20px; font-weight: 800; line-height: 1.2; }
 .badges { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
 .contact { display: flex; gap: 8px; flex-wrap: wrap; }
+.msg-btn { position: relative; }
+.nbadge.inline { position: static; margin-left: 2px; box-shadow: none; }
 .actions { display: flex; gap: 8px; }
 .actions .btn { flex: 1; }
 .alert { display: flex; gap: 10px; align-items: center; padding: 12px; border-radius: 14px; background: color-mix(in srgb, var(--warn) 14%, var(--card)); color: var(--ink); border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent); }

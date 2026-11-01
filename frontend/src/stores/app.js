@@ -19,11 +19,13 @@ function writeJSON(key, value) {
   }
 }
 
-// Urutan menu = urutan di navigasi. `phone` = tampil di tab bawah HP (maks 5 termasuk Lainnya).
+// Urutan menu = urutan di navigasi. `phone` = kandidat tab bawah HP; 4 pertama yang boleh diakses
+// tampil di tab (+ Lainnya), sisanya pindah ke halaman Lainnya.
 export const NAV = [
   { key: 'dashboard', to: '/', name: 'home', label: 'Beranda', icon: 'home', phone: true },
   { key: 'calendar', to: '/calendar', name: 'calendar', label: 'Kalender', icon: 'calendar', phone: true },
   { key: 'bookings', to: '/bookings', name: 'bookings', label: 'Booking', icon: 'list', phone: true },
+  { key: 'messages', to: '/messages', name: 'messages', label: 'Pesan', icon: 'messages', phone: true },
   { key: 'new_booking', to: '/new', name: 'new', label: 'Booking Baru', short: 'Baru', icon: 'plus', phone: true },
   { key: 'availability', to: '/rates', name: 'rates', label: 'Ketersediaan', icon: 'tags' },
   { key: 'reports', to: '/reports', name: 'reports', label: 'Laporan', icon: 'chart' },
@@ -41,7 +43,8 @@ export const useApp = defineStore('app', {
       prefs,
       online: navigator.onLine,
       toast: null,
-      installPrompt: null
+      installPrompt: null,
+      unread: (boot && boot.unread_messages) || 0
     }
   },
   getters: {
@@ -55,6 +58,14 @@ export const useApp = defineStore('app', {
     property: (s) => s.prefs.property || '',
     navItems() {
       return NAV.filter((n) => this.can(n.key))
+    },
+    phoneNav() {
+      return this.navItems.filter((n) => n.phone).slice(0, 4)
+    },
+    // Menu yang tidak muat di tab bawah HP → halaman Lainnya.
+    moreNav() {
+      const shown = new Set(this.phoneNav.map((n) => n.key))
+      return this.navItems.filter((n) => !shown.has(n.key))
     },
     firstRoute() {
       const n = this.navItems[0]
@@ -80,6 +91,7 @@ export const useApp = defineStore('app', {
         this.boot = boot
         this.bootError = ''
         writeJSON(LS_BOOT, boot)
+        this.unread = boot.unread_messages || 0
         if (this.prefs.property && !boot.properties.some((p) => p.property_id === this.prefs.property)) {
           this.setPref('property', '')
         }
@@ -88,6 +100,15 @@ export const useApp = defineStore('app', {
         if (!this.boot || (e.status && e.status !== 0 && e.status < 500)) this.bootError = e.message
       } finally {
         this.loaded = true
+      }
+    },
+    // Badge menu Pesan: dipanggil berkala (App.vue) dan setelah membaca/membalas.
+    async refreshUnread() {
+      if (!this.can('messages') || !this.online || document.hidden) return
+      try {
+        this.unread = (await call('unread_count')) || 0
+      } catch {
+        /* abaikan: badge saja */
       }
     },
     setPref(key, value) {

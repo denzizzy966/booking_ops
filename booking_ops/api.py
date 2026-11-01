@@ -18,6 +18,8 @@ MENUS = (
 	"dashboard",
 	"calendar",
 	"bookings",
+	"messages",
+	"reply_message",
 	"new_booking",
 	"edit_booking",
 	"front_desk",
@@ -150,6 +152,7 @@ def get_bootstrap():
 			"last_pull": s.last_pull,
 			"last_pull_result": s.last_pull_result,
 		},
+		"unread_messages": _unread_count() if menus.get("messages") else 0,
 		"today": nowdate(),
 	}
 
@@ -301,6 +304,9 @@ def _booking_out(doc):
 	out["property_name"] = doc.property and frappe.db.get_value("Beds24 Property", doc.property, "property_name")
 	menus = menu_access()
 	out["sales_order_info"] = _so_summary(doc.sales_order) if menus.get("sales_order") else None
+	if menus.get("messages"):
+		out["message_count"] = frappe.db.count("Beds24 Message", {"booking": doc.name})
+		out["unread_messages"] = frappe.db.count("Beds24 Message", {"booking": doc.name, "source": "guest", "read": 0})
 	out["log"] = frappe.get_all(
 		"Beds24 Sync Log",
 		{"booking_id": doc.name},
@@ -692,6 +698,161 @@ def report(month=None, property=None):
 			"total": round(sum(flt(r.grand_total) for r in so_rows if r.docstatus != 2), 2),
 		},
 	}
+
+
+# ───────────────────────── Pesan tamu ─────────────────────────
+
+MSG_FIELDS = ["name", "message_id", "booking", "source", "message", "time", "read", "attachment", "attachment_name", "sent_by"]
+ATTACH_TYPES = {"image/jpeg", "image/png", "image/gif", "application/pdf"}
+MAX_ATTACH = 5 * 1024 * 1024
+
+
+def _unread_count(property=None):
+	cond, args = "", {}
+	if property:
+		cond, args = " and b.property = %(property)s", {"property": property}
+	return cint(
+		frappe.db.sql(
+			f"""select count(*) from `tabBeds24 Message` m join `tabBeds24 Booking` b on b.name = m.booking
+			where m.source = 'guest' and m.read = 0{cond}""",
+			args,
+		)[0][0]
+	)
+
+
+@frappe.whitelist()
+def unread_count(property=None):
+	"""Ringan, dipanggil berkala oleh PWA untuk badge menu Pesan."""
+	if frappe.session.user == "Guest" or not menu_access().get("messages"):
+		return 0
+	return _unread_count(property)
+
+
+@frappe.whitelist()
+def inbox(txt=None, only_unread=0, property=None, start=0, limit=30):
+	"""Satu baris per booking: pesan terakhir + jumlah belum dibaca, terbaru di atas."""
+	_require("messages")
+	cond, args = [], {"start": cint(start), "limit": min(cint(limit) or 30, 100)}
+	if property:
+		cond.append("b.property = %(property)s")
+		args["property"] = property
+	if txt and txt.strip():
+		args["like"] = f"%{txt.strip()}%"
+		cond.append(
+			"(b.guest_name like %(like)s or b.booking_id like %(like)s or exists (select 1 from `tabBeds24 Message` x"
+			" where x.booking = b.name and x.message like %(like)s))"
+		)
+	where = ("where " + " and ".join(cond)) if cond else ""
+	having = "having unread > 0" if cint(only_unread) else ""
+	rows = frappe.db.sql(
+		f"""select m.booking, max(m.time) as last_time, count(*) as total,
+			sum(m.source = 'guest' and m.read = 0) as unread
+		from `tabBeds24 Message` m join `tabBeds24 Booking` b on b.name = m.booking
+		{where} group by m.booking {having}
+		order by last_time desc limit %(start)s, %(limit)s""",
+		args,
+		as_dict=True,
+	)
+	if not rows:
+		return []
+	names = [r.booking for r in rows]
+	books = {b.name: b for b in frappe.get_all("Beds24 Booking", {"name": ("in", names)}, CARD_FIELDS)}
+	last = {}
+	for m in frappe.get_all(
+		"Beds24 Message", {"booking": ("in", names)}, ["booking", "source", "message", "attachment_name", "time"], order_by="time desc"
+	):
+		last.setdefault(m.booking, m)
+	return [
+		dict(books.get(r.booking) or {}, booking_id=r.booking, last_time=r.last_time, total=cint(r.total),
+			 unread=cint(r.unread), last=last.get(r.booking))
+		for r in rows
+	]
+
+
+@frappe.whitelist()
+def thread(booking_id, refresh=0):
+	"""Percakapan satu booking (lama → baru). refresh=1 → tarik dulu dari Beds24."""
+	_require("messages")
+	name = str(booking_id)
+	doc = frappe.get_doc("Beds24 Booking", name)
+	warning = None
+	if cint(refresh):
+		try:
+			sync.pull_messages(booking_id=name)
+		except Exception as e:
+			frappe.db.rollback()
+			warning = _("Gagal mengambil pesan terbaru dari Beds24: {0}").format(e)
+	out = {k: doc.get(k) for k in CARD_FIELDS}
+	out["room_name"] = doc.room and frappe.db.get_value("Beds24 Room", doc.room, "room_name")
+	return {
+		"booking": out,
+		"messages": frappe.get_all("Beds24 Message", {"booking": name}, MSG_FIELDS, order_by="time asc, creation asc"),
+		"can_reply": bool(menu_access().get("reply_message")),
+		"warning": warning,
+	}
+
+
+@frappe.whitelist(methods=["POST"])
+def mark_read(booking_id):
+	"""Tandai pesan tamu dibaca: lokal langsung, lalu diteruskan ke Beds24 (gagal → dicatat saja)."""
+	_require("messages")
+	ids = frappe.get_all("Beds24 Message", {"booking": str(booking_id), "source": "guest", "read": 0}, pluck="name")
+	if not ids:
+		return {"marked": 0}
+	frappe.db.set_value("Beds24 Message", {"name": ("in", ids)}, "read", 1, update_modified=False)
+	frappe.db.commit()
+	try:
+		beds24.post_messages([{"id": cint(i), "read": True} for i in ids if str(i).isdigit()])
+	except Exception as e:
+		sync.log("Keluar", "Tandai pesan dibaca", booking_id, "Error", str(e))
+	return {"marked": len(ids)}
+
+
+@frappe.whitelist(methods=["POST"])
+def send_message(booking_id, message=None, internal=0, attachment=None, attachment_name=None, attachment_type=None):
+	"""Balas tamu lewat Beds24 (diteruskan ke channel: Airbnb, Booking.com, …) atau catatan internal."""
+	_require("reply_message")
+	name = str(booking_id)
+	if not frappe.db.exists("Beds24 Booking", name):
+		frappe.throw(_("Booking {0} tidak ditemukan.").format(name))
+	text = (message or "").strip()
+	if not text and not attachment:
+		frappe.throw(_("Tulis pesan dulu."))
+	if len(text) > 5000:
+		frappe.throw(_("Pesan terlalu panjang (maks 5000 karakter)."))
+	row = {"bookingId": cint(name), "message": text}
+	source = "internalNote" if cint(internal) else "host"
+	if source == "internalNote":
+		row["source"] = source
+	if attachment:
+		if attachment_type not in ATTACH_TYPES:
+			frappe.throw(_("Lampiran harus JPG, PNG, GIF atau PDF."))
+		if len(attachment) * 3 / 4 > MAX_ATTACH:
+			frappe.throw(_("Lampiran maksimal 5 MB."))
+		row.update({"attachment": attachment, "attachmentName": attachment_name or "lampiran", "attachmentMimeType": attachment_type})
+	beds24.post_messages([row])
+	try:
+		sync.pull_messages(booking_id=name)
+	except Exception as e:
+		sync.log("Masuk", "Pesan", name, "Error", _("Terkirim, tapi gagal ditarik ulang: {0}").format(e))
+	mine = frappe.db.get_value(
+		"Beds24 Message",
+		{"booking": name, "source": source, "message": text, "sent_by": ("is", "not set")},
+		"name",
+		order_by="time desc",
+	)
+	if mine:
+		frappe.db.set_value("Beds24 Message", mine, "sent_by", frappe.session.user, update_modified=False)
+	sync.log("Keluar", "Catatan internal" if source == "internalNote" else "Pesan dikirim", name, message=text[:140])
+	frappe.db.commit()
+	return thread(name)
+
+
+@frappe.whitelist(methods=["POST"])
+def fetch_messages():
+	"""Tombol "Muat pesan": tarik pesan 30 hari terakhir dari Beds24."""
+	_require("messages")
+	return sync.pull_messages(max_age=30)
 
 
 # ───────────────────────── Webhook Beds24 ─────────────────────────

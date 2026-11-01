@@ -202,3 +202,25 @@ def get_offers(arrival, departure, num_adult=1, num_child=0, room_ids=None, prop
 			"propertyId": property_ids,
 		},
 	)
+
+
+# ── Pesan tamu (GET/POST /bookings/messages) ──
+
+
+def get_messages(**filters):
+	"""filters: bookingId, propertyId, filter ('read'/'unread'), maxAge (hari), source."""
+	return get_all("/bookings/messages", filters)
+
+
+def post_messages(rows):
+	"""Kirim pesan ({bookingId, message[, source, attachment…]}) atau tandai dibaca ({id, read})."""
+	res = request("POST", "/bookings/messages", json=rows)
+	res = res if isinstance(res, list) else [res]
+	errors = [
+		"; ".join(str(e.get("message") or e) for e in (item.get("errors") or [])) or str(item)
+		for item in res
+		if not item.get("success")
+	]
+	if errors:
+		raise Beds24Error(_("Beds24 menolak pesan: {0}").format(" | ".join(errors)))
+	return res

@@ -1,15 +1,23 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useApp, NAV } from '../stores/app'
+import { useApp } from '../stores/app'
 import { call } from '../lib/api'
 import AppBar from '../components/AppBar.vue'
 
 const app = useApp()
 const router = useRouter()
 // Menu yang tidak muat di tab bawah HP.
-const extra = computed(() => NAV.filter((n) => !n.phone && app.can(n.key)))
-const desc = { availability: 'Sisa kamar & harga per malam', reports: 'Pendapatan, okupansi, channel', sync: 'Status Beds24, log, coba ulang' }
+const extra = computed(() => app.moreNav)
+const desc = {
+  availability: 'Sisa kamar & harga per malam',
+  reports: 'Pendapatan, okupansi, channel',
+  sync: 'Status Beds24, log, coba ulang',
+  new_booking: 'Buat booking langsung ke Beds24',
+  messages: 'Pesan tamu dari OTA',
+  calendar: 'Kamar × tanggal',
+  bookings: 'Cari & kelola booking'
+}
 
 async function logout() {
   try {

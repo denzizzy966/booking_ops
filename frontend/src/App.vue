@@ -1,8 +1,20 @@
 <script setup>
+import { onMounted, onBeforeUnmount } from 'vue'
 import { useApp } from './stores/app'
 import NavBar from './components/NavBar.vue'
 
 const app = useApp()
+// Badge pesan belum dibaca: cek tiap menit (dilewati saat tab tersembunyi / offline).
+let timer = null
+const onVisible = () => !document.hidden && app.refreshUnread()
+onMounted(() => {
+  timer = setInterval(() => app.refreshUnread(), 60000)
+  document.addEventListener('visibilitychange', onVisible)
+})
+onBeforeUnmount(() => {
+  clearInterval(timer)
+  document.removeEventListener('visibilitychange', onVisible)
+})
 const icon = import.meta.env.BASE_URL + 'icon-192.png'
 </script>
 
@@ -20,7 +32,7 @@ const icon = import.meta.env.BASE_URL + 'icon-192.png'
     <NavBar />
     <main class="main">
       <router-view v-slot="{ Component, route }">
-        <component :is="Component" :key="route.name === 'booking' ? route.fullPath : route.name" />
+        <component :is="Component" :key="['booking', 'thread'].includes(route.name) ? route.fullPath : route.name" />
       </router-view>
     </main>
     <transition name="fade">

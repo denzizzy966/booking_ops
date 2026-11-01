@@ -1,0 +1,156 @@
+{
+ "actions": [],
+ "autoname": "field:message_id",
+ "creation": "2026-11-01 21:30:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "message_id",
+  "booking",
+  "guest_name",
+  "channel",
+  "property",
+  "cb1",
+  "source",
+  "time",
+  "read",
+  "sent_by",
+  "sb1",
+  "message",
+  "attachment",
+  "attachment_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "message_id",
+   "fieldtype": "Data",
+   "label": "ID Pesan Beds24",
+   "reqd": 1,
+   "unique": 1,
+   "read_only": 1,
+   "in_list_view": 0
+  },
+  {
+   "fieldname": "booking",
+   "fieldtype": "Link",
+   "label": "Booking",
+   "options": "Beds24 Booking",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "guest_name",
+   "fieldtype": "Data",
+   "label": "Tamu",
+   "fetch_from": "booking.guest_name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "channel",
+   "fieldtype": "Data",
+   "label": "Channel",
+   "fetch_from": "booking.channel",
+   "read_only": 1
+  },
+  {
+   "fieldname": "property",
+   "fieldtype": "Link",
+   "label": "Properti",
+   "options": "Beds24 Property",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "label": "Dari",
+   "options": "guest\nhost\nsystem\ninternalNote",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Datetime",
+   "label": "Waktu",
+   "in_list_view": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "read",
+   "fieldtype": "Check",
+   "label": "Sudah Dibaca",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "sent_by",
+   "fieldtype": "Link",
+   "label": "Dikirim oleh (ERPNext)",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb1",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Long Text",
+   "label": "Pesan"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Lampiran",
+   "read_only": 1
+  },
+  {
+   "fieldname": "attachment_name",
+   "fieldtype": "Data",
+   "label": "Nama Lampiran",
+   "read_only": 1
+  }
+ ],
+ "in_create": 1,
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-11-01 21:30:00",
+ "modified_by": "Administrator",
+ "module": "Booking Ops",
+ "name": "Beds24 Message",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Booking Ops Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Booking Ops User",
+   "read": 1
+  }
+ ],
+ "sort_field": "time",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "guest_name",
+ "track_changes": 0
+}

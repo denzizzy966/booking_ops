@@ -113,3 +113,12 @@ export function guests(b) {
 export function pct(v) {
   return `${String(Number(v || 0)).replace('.', ',')}%`
 }
+// Waktu pesan di daftar: jam (hari ini), "Kemarin", atau tanggal.
+export function fmtMsgTime(s) {
+  if (!s) return ''
+  const d = String(s).slice(0, 10)
+  const n = diffDays(d, today())
+  if (n === 0) return String(s).slice(11, 16)
+  if (n === 1) return 'Kemarin'
+  return fmtDate(d, { day: false })
+}

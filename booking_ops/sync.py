@@ -55,9 +55,13 @@ def log(direction, event, booking_id=None, status="OK", message=None, payload=No
 # ───────────────────────── Tarik dari Beds24 ─────────────────────────
 
 
+def _connected(s):
+	return bool(s.get_password("refresh_token", raise_exception=False) or s.get_password("long_life_token", raise_exception=False))
+
+
 def scheduled_pull():
 	s = _settings()
-	if not cint(s.enable_sync) or not (s.get_password("refresh_token", raise_exception=False) or s.get_password("long_life_token", raise_exception=False)):
+	if not cint(s.enable_sync) or not _connected(s):
 		return
 	try:
 		pull_changes()
@@ -123,6 +127,12 @@ def handle_webhook(payload):
 		upsert_booking(b, source="webhook")
 		log("Masuk", "Webhook (tanpa API)", bid, "Error", str(e))
 	log("Masuk", "Webhook", bid, message=b.get("status"))
+	# Payload webhook v2 bisa membawa pesan booking itu → simpan sekalian.
+	for m in payload.get("messages") or []:
+		try:
+			upsert_message(dict(m, bookingId=m.get("bookingId") or bid))
+		except Exception as e:
+			log("Masuk", "Pesan (webhook)", bid, "Error", str(e), m)
 
 
 # ───────────────────────── Beds24 → Beds24 Booking ─────────────────────────
@@ -580,3 +590,112 @@ def daily():
 			import_properties()
 		except Exception as e:
 			log("Masuk", "Impor properti", status="Error", message=str(e))
+
+
+# ───────────────────────── Pesan tamu ─────────────────────────
+
+MSG_LOCK = "booking_ops:msg_lock"
+MSG_SOURCES = ("guest", "host", "system", "internalNote")
+
+
+def map_message(m):
+	return {
+		"message_id": str(m.get("id")),
+		"booking": str(m.get("bookingId")),
+		"property": str(m.get("propertyId") or "") or None,
+		"source": m.get("source") if m.get("source") in MSG_SOURCES else "system",
+		"message": m.get("message") or "",
+		"time": _dt(m.get("time")),
+		# Pesan dari host/sistem tidak perlu "dibaca" → anggap sudah.
+		"read": 1 if m.get("read") or m.get("source") != "guest" else 0,
+		"attachment_name": m.get("attachmentName") or "",
+	}
+
+
+def _save_attachment(doc, m):
+	"""Lampiran base64 dari Beds24 → File privat di pesan (sekali saja)."""
+	raw = m.get("attachment")
+	if not raw or doc.attachment:
+		return
+	import base64
+
+	try:
+		content = base64.b64decode(raw)
+	except (ValueError, TypeError):
+		return
+	f = frappe.get_doc(
+		{
+			"doctype": "File",
+			"file_name": m.get("attachmentName") or f"lampiran-{doc.name}",
+			"attached_to_doctype": "Beds24 Message",
+			"attached_to_name": doc.name,
+			"is_private": 1,
+			"content": content,
+		}
+	).insert(ignore_permissions=True)
+	doc.db_set("attachment", f.file_url, update_modified=False)
+
+
+def upsert_message(m, sent_by=None):
+	"""Simpan satu pesan Beds24. Kembalikan 'created' | 'updated' | 'unchanged' | 'skipped'."""
+	data = map_message(m)
+	if not m.get("id") or not m.get("bookingId"):
+		return "skipped"
+	if not frappe.db.exists("Beds24 Booking", data["booking"]):
+		try:  # pesan untuk booking yang belum ada di ERPNext → ambil booking-nya dulu
+			pull_one(data["booking"], source="message")
+		except Exception as e:
+			log("Masuk", "Pesan", data["booking"], "Dilewati", _("Booking belum ada: {0}").format(e))
+			return "skipped"
+	name = data["message_id"]
+	if frappe.db.exists("Beds24 Message", name):
+		doc = frappe.get_doc("Beds24 Message", name)
+		# status dibaca lokal tidak ditimpa mundur (sudah dibaca di app, Beds24 belum tahu)
+		data["read"] = max(cint(doc.read), data["read"])
+		if all(str(doc.get(k) or "") == str(v or "") for k, v in data.items() if k != "time"):
+			return "unchanged"
+		doc.update(data)
+		doc.save(ignore_permissions=True)
+		res = "updated"
+	else:
+		doc = frappe.get_doc(dict(doctype="Beds24 Message", sent_by=sent_by, **data))
+		doc.insert(ignore_permissions=True)
+		res = "created"
+	_save_attachment(doc, m)
+	return res
+
+
+def pull_messages(booking_id=None, max_age=None):
+	"""Tarik pesan dari Beds24 (per booking, atau semua N hari terakhir)."""
+	if not booking_id and frappe.cache.get_value(MSG_LOCK):
+		return {"skipped": True, "message": _("Tarik pesan lain sedang berjalan.")}
+	if not booking_id:
+		frappe.cache.set_value(MSG_LOCK, 1, expires_in_sec=300)
+	try:
+		params = {"bookingId": [cint(booking_id)]} if booking_id else {"maxAge": cint(max_age) or 30}
+		rows = beds24.get_messages(**params)
+		stats = {"fetched": len(rows), "created": 0, "updated": 0, "unchanged": 0, "skipped": 0, "errors": 0}
+		for m in sorted(rows, key=lambda x: x.get("time") or ""):
+			try:
+				stats[upsert_message(m)] += 1
+			except Exception as e:
+				stats["errors"] += 1
+				log("Masuk", "Pesan", m.get("bookingId"), "Error", str(e), m)
+		frappe.db.commit()
+		if not booking_id and (stats["created"] or stats["errors"]):
+			log("Masuk", "Tarik pesan", status="Error" if stats["errors"] else "OK",
+				message=_("{created} pesan baru · {errors} gagal").format(**stats))
+		return stats
+	finally:
+		if not booking_id:
+			frappe.cache.delete_value(MSG_LOCK)
+
+
+def scheduled_messages():
+	s = _settings()
+	if not cint(s.enable_sync) or not cint(s.get("enable_messages")) or not _connected(s):
+		return
+	try:
+		pull_messages(max_age=cint(s.get("message_days")) or 2)
+	except Exception as e:
+		log("Masuk", "Tarik pesan berkala", status="Error", message=str(e))

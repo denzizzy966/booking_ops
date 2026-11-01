@@ -12,7 +12,7 @@
    "fieldname": "menu",
    "fieldtype": "Select",
    "label": "Menu",
-   "options": "dashboard\ncalendar\nbookings\nnew_booking\nedit_booking\nfront_desk\navailability\nsales_order\nsync\nreports",
+   "options": "dashboard\ncalendar\nbookings\nmessages\nreply_message\nnew_booking\nedit_booking\nfront_desk\navailability\nsales_order\nsync\nreports",
    "reqd": 1,
    "in_list_view": 1,
    "columns": 4
@@ -29,7 +29,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-01 00:00:00",
+ "modified": "2026-11-01 21:30:00",
  "modified_by": "Administrator",
  "module": "Booking Ops",
  "name": "Booking Ops Menu Role",

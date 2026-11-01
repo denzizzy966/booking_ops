@@ -12,6 +12,7 @@ app.component('Icon', Icon)
 
 const store = useApp()
 store.applyTheme()
+store.applyRail()
 store.bindNetwork()
 
 // Bootstrap (menu per role, properti, kamar) dulu → router guard tahu menu mana yang boleh.

@@ -4,6 +4,8 @@ import {
   faArrowRightFromBracket,
   faArrowRightToBracket,
   faArrowUpRightFromSquare,
+  faAnglesLeft,
+  faAnglesRight,
   faArrowsRotate,
   faBan,
   faBed,
@@ -97,5 +99,7 @@ export const ICONS = {
   desktop: faDesktop,
   logout: faRightFromBracket,
   newcal: faCalendarPlus,
+  collapse: faAnglesLeft,
+  expand: faAnglesRight,
   flask: faFlask
 }

@@ -44,7 +44,8 @@ export const useApp = defineStore('app', {
       online: navigator.onLine,
       toast: null,
       installPrompt: null,
-      unread: (boot && boot.unread_messages) || 0
+      unread: (boot && boot.unread_messages) || 0,
+      winWide: window.innerWidth >= 1100
     }
   },
   getters: {
@@ -56,6 +57,9 @@ export const useApp = defineStore('app', {
     settings: (s) => (s.boot && s.boot.settings) || {},
     currency: (s) => (s.boot && s.boot.settings && s.boot.settings.currency) || 'IDR',
     property: (s) => s.prefs.property || '',
+    // Sidebar tablet/desktop: lebar (ikon + label) atau ringkas (ikon saja). Pilihan pengguna
+    // (prefs.rail) menang; tanpa pilihan → otomatis menurut lebar layar (≥1100 px lebar).
+    railWide: (s) => s.prefs.rail === 'wide' || (s.prefs.rail !== 'compact' && s.winWide),
     navItems() {
       return NAV.filter((n) => this.can(n.key))
     },
@@ -116,6 +120,16 @@ export const useApp = defineStore('app', {
       writeJSON(LS_PREF, this.prefs)
       if (key === 'theme') this.applyTheme()
     },
+    applyRail() {
+      // Tanpa pilihan → atribut kosong, CSS media query yang menentukan (seperti sebelumnya).
+      const r = this.prefs.rail
+      if (r === 'wide' || r === 'compact') document.documentElement.dataset.rail = r
+      else delete document.documentElement.dataset.rail
+    },
+    toggleRail() {
+      this.setPref('rail', this.railWide ? 'compact' : 'wide')
+      this.applyRail()
+    },
     applyTheme() {
       const t = this.prefs.theme || 'system'
       const dark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -132,6 +146,13 @@ export const useApp = defineStore('app', {
       window.addEventListener('online', () => (this.online = true))
       window.addEventListener('offline', () => (this.online = false))
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => this.applyTheme())
+      window.addEventListener('resize', () => {
+        const w = window.innerWidth >= 1100
+        if (w !== this.winWide) {
+          this.winWide = w
+          this.applyRail()
+        }
+      })
     }
   }
 })

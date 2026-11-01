@@ -21,13 +21,16 @@ const moreActive = computed(() => (current.value === 'more' || app.moreNav.some(
       <img :src="icon" alt="" />
       <span>Booking Ops</span>
     </div>
-    <router-link v-for="n in items" :key="n.key" :to="n.to" class="rail-item" :class="{ active: isActive(n) }">
+    <router-link v-for="n in items" :key="n.key" :to="n.to" class="rail-item" :class="{ active: isActive(n) }" :title="app.railWide ? '' : n.label">
       <span class="ic"><Icon :name="n.icon" /><i v-if="badge(n)" class="nbadge">{{ badge(n) }}</i></span><span>{{ n.label }}</span>
     </router-link>
     <div class="grow"></div>
-    <router-link to="/more" class="rail-item" :class="{ active: current === 'more' }">
+    <router-link to="/more" class="rail-item" :class="{ active: current === 'more' }" :title="app.railWide ? '' : 'Lainnya'">
       <Icon name="settings" /><span>Lainnya</span>
     </router-link>
+    <button class="rail-item rail-toggle" :title="app.railWide ? 'Ciutkan menu' : 'Lebarkan menu'" :aria-label="app.railWide ? 'Ciutkan menu' : 'Lebarkan menu'" @click="app.toggleRail()">
+      <Icon :name="app.railWide ? 'collapse' : 'expand'" /><span>{{ app.railWide ? 'Ciutkan' : 'Lebarkan' }}</span>
+    </button>
   </nav>
 
   <nav class="tabbar">

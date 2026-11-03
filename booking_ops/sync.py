@@ -413,6 +413,10 @@ def _apply(so, d):
 			continue
 		so.set(k, v)
 	so.set("items", [])
+	# Jadwal bayar dihitung ulang ERPNext dari tanggal SO yang baru. Kalau jadwal lama ikut terbawa
+	# (SO draft diperbarui / di-amend) dan tanggal SO bergeser, due date-nya bisa lebih awal dari
+	# tanggal SO → "Due Date ... cannot be before Posting Date".
+	so.set("payment_schedule", [])
 	for ln in d["items"]:
 		so.append("items", dict(ln, price_list_rate=ln["rate"]))
 	company_currency = frappe.get_cached_value("Company", d["company"], "default_currency")
